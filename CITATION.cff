@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "BioThreat-Eval: LLM Biosecurity Capability Evaluation Pipeline"
+authors:
+  - family-names: Kim
+    given-names: JangKeun
+    affiliation: "Weill Cornell Medicine"
+version: 1.0.0
+date-released: "2026-04-04"
+license: MIT
+repository-code: "https://github.com/jang1563/biothreat-eval"
+abstract: >
+  A systematic pipeline for evaluating how frontier language models handle
+  dual-use biological knowledge queries, translating behavioral profiles into
+  quantitative risk assessments and policy recommendations using a 4-stage
+  Monte Carlo attack chain model calibrated against NSABB dual-use categories.
+keywords:
+  - biosecurity
+  - large language models
+  - dual-use research of concern
+  - ai safety
+  - risk assessment
+  - NSABB
