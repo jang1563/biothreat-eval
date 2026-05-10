@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![HuggingFace Dataset](https://img.shields.io/badge/HuggingFace-Dataset-orange)](https://huggingface.co/datasets/jang1563/biothreat-eval)
 
-**Author**: JangKeun Kim — Weill Cornell Medicine
+**Author**: JangKeun Kim: Weill Cornell Medicine
 
 LLM Biosecurity Capability Evaluation + Policy Pipeline
 
@@ -45,15 +45,15 @@ BioThreat-Eval is a systematic pipeline that evaluates how frontier language mod
 
 ### Key Findings
 
-1. **Specificity drives risk, not permissiveness.** Qwen3 has the lowest refusal rate (2.2%) but is GREEN because its responses lack operational detail. DeepSeek models refuse more often (11-13%) but provide highly specific information when they respond — this drives their AMBER classification.
+1. **Specificity drives risk, not permissiveness.** Qwen3 has the lowest refusal rate (2.2%) but is GREEN because its responses lack operational detail. DeepSeek models refuse more often (11-13%) but provide highly specific information when they respond: this drives their AMBER classification.
 
 2. **Model size does not monotonically predict risk.** Llama 3.1 8B is slightly safer than Llama 3.3 70B across all scenarios, and Qwen3 32B is safer than Gemini 2.5 Pro despite being smaller.
 
-3. **de_novo_pathogen is the highest-risk scenario** across all models. DeepSeek V3 reaches R=3.07 on this scenario — closest to RED (R >= 5.0).
+3. **de_novo_pathogen is the highest-risk scenario** across all models. DeepSeek V3 reaches R=3.07 on this scenario: closest to RED (R >= 5.0).
 
 4. **Gemini is borderline AMBER.** Its drug_resistance R=2.00 is at the threshold. Small changes in alpha coefficients could flip its classification.
 
-5. **Deploy stage has negligible uplift** (~0.003-0.004 across all models). LLM assistance helps with research and acquisition but not physical deployment — consistent with the Gryphon Scientific uplift study findings.
+5. **Deploy stage has negligible uplift** (~0.003-0.004 across all models). LLM assistance helps with research and acquisition but not physical deployment: consistent with the Gryphon Scientific uplift study findings.
 
 ## Key Design Decisions
 
