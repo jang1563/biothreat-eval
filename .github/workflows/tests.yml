@@ -27,3 +27,15 @@ jobs:
 
       - name: Run tests
         run: pytest tests/ -v --tb=short
+
+      - name: Build package
+        if: matrix.python-version == '3.13'
+        run: python -m build
+
+      - name: Verify wheel imports outside repository
+        if: matrix.python-version == '3.13'
+        run: |
+          python -m venv /tmp/biothreat-wheel-check
+          /tmp/biothreat-wheel-check/bin/python -m pip install dist/*.whl
+          cd /tmp
+          /tmp/biothreat-wheel-check/bin/python -c "import models, risk_model, run; print('wheel import ok')"

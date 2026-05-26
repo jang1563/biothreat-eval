@@ -7,7 +7,7 @@ name = "biothreat-eval"
 version = "1.0.0"
 description = "LLM biosecurity capability evaluation and quantitative risk assessment pipeline"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 authors = [
     { name = "JangKeun Kim" }
 ]
@@ -24,11 +24,31 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0,<9.0"]
+dev = [
+    "build>=1.2,<2.0",
+    "pytest>=8.0,<9.0",
+    "tomli>=2.0,<3.0; python_version < '3.11'",
+]
 hf = ["huggingface_hub[cli]>=0.16.0"]
 
-[tool.setuptools.packages.find]
-exclude = ["tests*", "scripts*", "data*", "results*", "hf_data*"]
+[tool.setuptools]
+py-modules = [
+    "behavior_analysis",
+    "brief_generator",
+    "config",
+    "evaluator",
+    "figures",
+    "generate_query_bank",
+    "llm_client",
+    "models",
+    "policy_mapper",
+    "proxy_queries",
+    "risk_model",
+    "run",
+    "taxonomy",
+    "threat_scenarios",
+    "uplift_calculator",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

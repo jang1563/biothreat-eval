@@ -1,0 +1,39 @@
+name: Bug report
+description: Report a reproducible problem in the pipeline, tests, or public artifacts.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction Steps
+      description: Include commands, inputs, and the observed output.
+      placeholder: |
+        1. Run `python -m pytest -q`
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python Version
+      placeholder: "3.13.11"
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add logs or links. Do not paste API keys, raw model responses, or query-bank content.

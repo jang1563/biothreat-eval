@@ -13,13 +13,15 @@ LLM Biosecurity Capability Evaluation + Policy Pipeline
 
 BioThreat-Eval is a systematic pipeline that evaluates how frontier language models handle dual-use biological knowledge queries and translates behavioral profiles into quantitative risk assessments and policy recommendations.
 
+The public results are a point-in-time aggregate snapshot from the **2026-03-30 evaluation run**. Model behavior and hosted model identifiers can change after that date, so new evaluations should rerun the pipeline rather than treating these numbers as current operational measurements.
+
 **Two modules in one pipeline:**
 
 - **Module A (BioThreat-Eval)**: Evaluates LLM behavioral responses to safe proxy queries across a 7-category NSABB dual-use taxonomy at 5 threat levels. Profiles HOW models respond (refuse, hedge, overclaim) using cross-provider LLM-as-judge scoring.
 
 - **Module C (BioRisk-MAP)**: Translates behavioral profiles into quantitative risk via a 4-stage attack chain Monte Carlo model, then generates RAND-style policy briefs with actionable recommendations.
 
-## Key Results (6 Models, 93 Queries Each)
+## Key Results (2026-03-30 Snapshot; 6 Models, 93 Queries Each)
 
 ### Risk Classification
 
@@ -75,13 +77,17 @@ BioThreat-Eval is a systematic pipeline that evaluates how frontier language mod
 
 ## Installation
 
+Requires Python 3.10+; Python 3.13 is used for the released snapshot.
+
 ```bash
 # With uv (recommended)
 uv venv --python 3.13
-uv pip install -e ".[dev]"
+uv pip install -e ".[dev,hf]"
 
-# Or with pip
-pip install -e ".[dev]"
+# Or with a standard virtual environment
+python3.13 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev,hf]"
 
 # Configure API keys
 cp .env.example .env  # then edit .env
@@ -109,6 +115,15 @@ python run.py --step sensitivity       # Alpha sensitivity sweep
 # Or all at once
 python run.py --all
 ```
+
+## Verification
+
+```bash
+python -m pytest -q
+python scripts/convert_to_hf.py
+```
+
+The Hugging Face upload artifact is generated into `hf_data/`; see [`docs/HUGGINGFACE.md`](docs/HUGGINGFACE.md) for dataset publishing and [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for the full release checklist.
 
 ## Risk Model
 

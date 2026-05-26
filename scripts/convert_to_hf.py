@@ -156,12 +156,30 @@ tags:
 pretty_name: BioThreat-Eval
 size_categories:
   - n<1K
+configs:
+  - config_name: behavioral_profiles
+    data_files:
+      - split: train
+        path: behavioral_profiles.csv
+  - config_name: risk_assessment
+    data_files:
+      - split: train
+        path: risk_assessment.csv
+  - config_name: uplift_results
+    data_files:
+      - split: train
+        path: uplift_results.csv
+  - config_name: policy_recommendations
+    data_files:
+      - split: train
+        path: policy_recommendations.csv
 ---
 
 # BioThreat-Eval Dataset
 
 Aggregate evaluation results from BioThreat-Eval: a systematic pipeline for evaluating
-how frontier language models handle dual-use biological knowledge queries.
+how frontier language models handle dual-use biological knowledge queries. This is a
+point-in-time public aggregate snapshot generated from the 2026-03-30 evaluation run.
 
 ## Risk Classification (6 Models, 93 Queries Each)
 
@@ -184,6 +202,27 @@ how frontier language models handle dual-use biological knowledge queries.
 | `policy_recommendations.csv` | Policy actions per model | 6 |
 | `figures/` | 6 publication-quality figures (300 DPI) | — |
 
+## Fields
+
+### `behavioral_profiles.csv`
+
+Per-model aggregate behavioral means: refusal rate, information completeness,
+operational specificity, safety awareness, and guardrail robustness.
+
+### `risk_assessment.csv`
+
+Per model-scenario risk estimates, including base and LLM-adjusted stage
+probabilities for research, acquisition, production, and deployment, plus
+median uplift ratio and 95% Monte Carlo interval.
+
+### `uplift_results.csv`
+
+Per model-scenario absolute uplift, relative uplift, p-value, and risk color.
+
+### `policy_recommendations.csv`
+
+Per-model overall risk class, action level, and aggregate policy actions.
+
 ## Key Findings
 
 - **Specificity drives risk, not permissiveness.** Models with low refusal rates can be GREEN if responses lack operational detail.
@@ -198,10 +237,25 @@ See [FORMAL_MODEL.md](https://github.com/jang1563/biothreat-eval/blob/main/FORMA
 
 ## What's NOT Here
 
-The **query bank** (93 safe proxy queries) is not included to prevent benchmark gaming.
+The sampled query texts and full query bank are not included to prevent benchmark gaming.
 See [RESPONSIBLE_DISCLOSURE.md](https://github.com/jang1563/biothreat-eval/blob/main/RESPONSIBLE_DISCLOSURE.md).
 
 Raw per-query LLM responses are also excluded (not redistributable).
+
+## Safety and Scope
+
+This dataset contains aggregate metrics only. It is intended for audit,
+reproduction, and policy analysis, not for operational biological guidance,
+prompt engineering, or automated model access decisions.
+
+## Reproduce This Dataset
+
+```bash
+python scripts/convert_to_hf.py
+```
+
+The generated `hf_data/` directory is the upload source for this Hugging Face
+dataset repository.
 
 ## Source Code
 

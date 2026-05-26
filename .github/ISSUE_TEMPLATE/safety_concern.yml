@@ -1,0 +1,38 @@
+name: Safety concern
+description: Report a non-sensitive safety, disclosure, or public-scope concern.
+title: "[Safety]: "
+labels: ["safety"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For sensitive disclosures, email `jak4013@med.cornell.edu` with subject `BIOTHREAT SAFETY` instead of opening a public issue.
+  - type: dropdown
+    id: concern_type
+    attributes:
+      label: Concern Type
+      options:
+        - Public artifact scope
+        - Documentation wording
+        - Risk interpretation
+        - Hugging Face dataset artifact
+        - Other non-sensitive safety concern
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the non-sensitive concern.
+    validations:
+      required: true
+  - type: textarea
+    id: location
+    attributes:
+      label: Location
+      description: Link to the file, section, figure, or public artifact.
+  - type: textarea
+    id: suggested_change
+    attributes:
+      label: Suggested Change
+      description: What would make the artifact safer or clearer?

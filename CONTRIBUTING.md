@@ -9,10 +9,12 @@ cd biothreat-eval
 
 # With uv (recommended)
 uv venv --python 3.13
-uv pip install -e ".[dev]"
+uv pip install -e ".[dev,hf]"
 
-# Or with pip
-pip install -e ".[dev]"
+# Or with a standard virtual environment
+python3.13 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev,hf]"
 
 # Configure API keys
 cp .env.example .env
@@ -24,7 +26,7 @@ cp .env.example .env
 All tests must pass before submitting a pull request:
 
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
 Tests run without API keys (all mock data). Do not add API key secrets to CI.
@@ -52,5 +54,18 @@ Tests run without API keys (all mock data). Do not add API key secrets to CI.
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Ensure all 53 tests pass
+3. Ensure the full test suite passes
 4. Open a pull request with a description of the change and its motivation
+
+## Release Checks
+
+Before publishing GitHub or Hugging Face updates:
+
+```bash
+python -m pytest -q
+python -m build
+python scripts/convert_to_hf.py
+```
+
+Upload only the generated `hf_data/` contents to Hugging Face. Do not upload
+`.env`, raw model responses, calibration sets, or full query-bank files.
