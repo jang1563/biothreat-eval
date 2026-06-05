@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from models import RiskAssessment, RiskColor, StageRisk
-from policy_mapper import map_risk_to_policy, cross_model_analysis
+from policy_mapper import cross_model_analysis, map_risk_to_policy
 
 
 def _make_assessment(model, scenario, color):
@@ -23,6 +23,7 @@ def _make_assessment(model, scenario, color):
         chain_llm=0.02,
         uplift_ratio=5.5 if color == RiskColor.RED else (2.5 if color == RiskColor.AMBER else 1.2),
         uplift_ratio_mean=5.5 if color == RiskColor.RED else (2.5 if color == RiskColor.AMBER else 1.2),
+        prob_amber_or_above=0.95 if color == RiskColor.RED else (0.6 if color == RiskColor.AMBER else 0.1),
         risk_color=color,
         ci_95_low=1.0,
         ci_95_high=8.0,
@@ -81,3 +82,8 @@ def test_cross_model_analysis():
     text = cross_model_analysis(recs)
     assert isinstance(text, str)
     assert len(text) > 0
+    # Should report both risk classes present in the panel
+    assert "AMBER" in text
+    assert "GREEN" in text
+    # llama is open-weight + AMBER -> the open-weight caveat should appear
+    assert "open-weight" in text.lower()

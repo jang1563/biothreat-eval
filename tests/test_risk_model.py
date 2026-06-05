@@ -5,11 +5,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import pytest
 from models import (
-    BehavioralProfile, NSABBCategory, RiskColor, ThreatScenario,
+    BehavioralProfile,
+    NSABBCategory,
+    RiskColor,
+    ThreatScenario,
 )
-from risk_model import compute_B, assess_risk
+from risk_model import assess_risk, compute_B
 from threat_scenarios import build_scenarios, verify_category_coverage
 
 
@@ -36,7 +38,7 @@ def _make_profile(
         "operational_specificity": specificity,
         "safety_awareness": safety,
     }
-    dims_by_level = {str(l): dict(dims) for l in range(1, 6)}
+    dims_by_level = {str(lvl): dict(dims) for lvl in range(1, 6)}
 
     return BehavioralProfile(
         model_name="test_model",
@@ -113,14 +115,18 @@ def test_B_produce_includes_safety():
 
 # ─── Risk Assessment Tests ───────────────────────────────────────────────────
 
-def test_zero_B_gives_R_one():
-    """All-refuse model should give R ≈ 1.0, GREEN."""
+def test_zero_B_sits_at_noise_floor():
+    """A zero-capability (all-refuse) model sits at the judge-noise floor, not exactly 1.0.
+
+    Clipping mean-zero judge noise at B >= 0 rectifies it upward, so B = 0 yields
+    median R slightly above 1.0 (~1.08; see FORMAL_MODEL.md sec 3), still GREEN.
+    """
     profile = _make_profile(refusal=1.0, completeness=0.0, specificity=0.0,
                             safety=0.0, robustness=1.0)
     scenario = build_scenarios()[0]
     result = assess_risk(profile, scenario, n_samples=1000, seed=42)
     assert result.risk_color == RiskColor.GREEN
-    assert abs(result.uplift_ratio - 1.0) < 0.1
+    assert 1.0 <= result.uplift_ratio < 1.15   # noise floor, not exactly 1.0
 
 
 def test_max_B_gives_red():
@@ -179,22 +185,22 @@ def test_increasing_alpha_increases_R():
                             safety=0.5, robustness=0.5)
     scenario = build_scenarios()[0]
 
-    # Save original alphas
+    # Save original alphas; restore in finally so a mid-test failure cannot
+    # corrupt the module-global ALPHA and pollute later tests in this process.
     orig = dict(ALPHA)
+    try:
+        # Low alphas
+        for s in ALPHA:
+            ALPHA[s] = 0.05
+        r_low = assess_risk(profile, scenario, n_samples=1000, seed=42)
 
-    # Low alphas
-    for s in ALPHA:
-        ALPHA[s] = 0.05
-    r_low = assess_risk(profile, scenario, n_samples=1000, seed=42)
-
-    # High alphas
-    for s in ALPHA:
-        ALPHA[s] = 0.40
-    r_high = assess_risk(profile, scenario, n_samples=1000, seed=42)
-
-    # Restore
-    for s in orig:
-        ALPHA[s] = orig[s]
+        # High alphas
+        for s in ALPHA:
+            ALPHA[s] = 0.40
+        r_high = assess_risk(profile, scenario, n_samples=1000, seed=42)
+    finally:
+        for s in orig:
+            ALPHA[s] = orig[s]
 
     assert r_high.uplift_ratio > r_low.uplift_ratio
 

@@ -6,12 +6,14 @@ Two versions:
 """
 
 import json
-from datetime import datetime, timezone
 from collections import defaultdict
+from datetime import datetime, timezone
 
-from config import RESULTS_DIR, POLICY_BRIEFS_DIR
+from config import RESULTS_DIR, SNAPSHOT_DATE
 from models import (
-    RiskAssessment, UpliftResult, PolicyRecommendation, PolicyBrief, RiskColor,
+    PolicyRecommendation,
+    RiskAssessment,
+    RiskColor,
 )
 from policy_mapper import cross_model_analysis
 
@@ -37,6 +39,7 @@ def generate_public_brief(
         "# BioThreat-Eval: Public Risk Summary",
         "",
         f"Date: {date}",
+        f"Evaluation snapshot: {SNAPSHOT_DATE}",
         f"Models evaluated: {n_models}",
         "",
         "## Executive Summary",
@@ -83,7 +86,6 @@ def generate_public_brief(
 def generate_detailed_brief(
     recommendations: list[PolicyRecommendation],
     assessments: list[RiskAssessment],
-    uplift_results: list[UpliftResult] | None = None,
 ) -> str:
     """Generate detailed brief with per-model per-stage tables.
 
@@ -95,6 +97,7 @@ def generate_detailed_brief(
         "# BioThreat-Eval: Detailed Risk Assessment",
         "",
         f"Date: {date}",
+        f"Evaluation snapshot: {SNAPSHOT_DATE}",
         "Classification: For policymakers and model developers only",
         "",
         "## Executive Summary",
@@ -123,6 +126,12 @@ def generate_detailed_brief(
 
     # Per-model detail
     lines.append("## Per-Model Assessment")
+    lines.append("")
+    lines.append(
+        "*Median R is the median of the per-sample uplift ratios; Chain Base and "
+        "Chain LLM are means of the per-sample chain probabilities. Because "
+        "E[X/Y] != E[X]/E[Y], Chain LLM / Chain Base does not equal Median R.*"
+    )
     lines.append("")
 
     # Group assessments by model
@@ -209,15 +218,8 @@ def run_brief_generation() -> dict[str, str]:
     assessments = [RiskAssessment.model_validate(a)
                    for a in json.loads(risk_path.read_text())]
 
-    # Load uplift (optional)
-    uplift_results = None
-    uplift_path = RESULTS_DIR / "uplift_results.json"
-    if uplift_path.exists():
-        uplift_results = [UpliftResult.model_validate(u)
-                          for u in json.loads(uplift_path.read_text())]
-
     public = generate_public_brief(recs, assessments)
-    detailed = generate_detailed_brief(recs, assessments, uplift_results)
+    detailed = generate_detailed_brief(recs, assessments)
 
     return {
         "public_summary": public,

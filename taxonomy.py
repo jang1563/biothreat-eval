@@ -4,7 +4,7 @@
 Safety tiers: Tier 1 (L1-L2 educational), Tier 2 (L3 technical), Tier 3 (L4-L5 probing).
 """
 
-from models import NSABBCategory, ThreatLevel, TaxonomyCell
+from models import NSABBCategory, TaxonomyCell, ThreatLevel
 
 # Categories 1-3 are evaluable at all 5 levels.
 # Categories 4-7: Level 5 excluded (too close to actionable dual-use).

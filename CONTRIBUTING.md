@@ -33,7 +33,14 @@ Tests run without API keys (all mock data). Do not add API key secrets to CI.
 
 ## Code Style
 
-- PEP 8 compliance required
+Linting is enforced in CI with [ruff](https://docs.astral.sh/ruff/) (config in
+`pyproject.toml`). Run it locally before opening a PR:
+
+```bash
+ruff check .
+```
+
+- Code must pass `ruff check` (PEP 8 / pyflakes / import order, line length 120)
 - Type hints: follow existing patterns; do not remove existing annotations
 - New public functions should have docstrings matching existing style
 
@@ -62,6 +69,7 @@ Tests run without API keys (all mock data). Do not add API key secrets to CI.
 Before publishing GitHub or Hugging Face updates:
 
 ```bash
+ruff check .
 python -m pytest -q
 python -m build
 python scripts/convert_to_hf.py

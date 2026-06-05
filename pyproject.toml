@@ -27,6 +27,7 @@ dependencies = [
 dev = [
     "build>=1.2,<2.0",
     "pytest>=8.0,<9.0",
+    "ruff>=0.6,<1.0",
     "tomli>=2.0,<3.0; python_version < '3.11'",
 ]
 hf = ["huggingface_hub[cli]>=0.16.0"]
@@ -53,6 +54,19 @@ py-modules = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+# Long lines in these files are deliberate content strings — the LLM judge
+# rubric (few-shot prompt text) and the Hugging Face dataset-card markdown —
+# not code that should be wrapped.
+"evaluator.py" = ["E501"]
+"scripts/convert_to_hf.py" = ["E501"]
 
 [project.urls]
 Repository = "https://github.com/jang1563/biothreat-eval"

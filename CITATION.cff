@@ -14,7 +14,7 @@ abstract: >
   A systematic pipeline for evaluating how frontier language models handle
   dual-use biological knowledge queries, translating behavioral profiles into
   quantitative risk assessments and policy recommendations using a 4-stage
-  Monte Carlo attack chain model calibrated against NSABB dual-use categories.
+  Monte Carlo attack chain model structured around NSABB dual-use categories.
 keywords:
   - biosecurity
   - large language models

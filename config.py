@@ -2,7 +2,7 @@
 
 Two modules:
   Module A (BioThreat-Eval): LLM behavioral evaluation on dual-use biology queries
-  Module C (BioRisk-MAP): Behavioral profiles -> risk scoring -> policy briefs
+  Module B (BioRisk-MAP): Behavioral profiles -> risk scoring -> policy briefs
 """
 
 from pathlib import Path
@@ -17,6 +17,9 @@ REPORTS_DIR = RESULTS_DIR / "reports"
 POLICY_BRIEFS_DIR = RESULTS_DIR / "policy_briefs"
 LOG_MD = BASE_DIR / "log.md"
 LOG_JSONL = BASE_DIR / "log.jsonl"
+
+# ─── Release metadata ────────────────────────────────────────────────────────
+SNAPSHOT_DATE = "2026-03-30"  # date of the released evaluation run (the model responses)
 
 # ─── Taxonomy ────────────────────────────────────────────────────────────────
 QUERIES_PER_CELL = 10  # per (category x level) cell

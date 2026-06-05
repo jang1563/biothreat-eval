@@ -1,11 +1,12 @@
 """Publication-quality figures for BioThreat-Eval analysis.
 
-5 figures:
+6 figures:
   A. Behavioral heatmap (models x categories, colored by refusal_rate)
   B. Threat-level gradient (levels x dims, one line per model)
   C. Attack chain waterfall (4 stages, base vs each model)
   D. Uplift comparison (models x scenarios)
   E. Risk dashboard (traffic-light matrix)
+  F. Sensitivity analysis (alpha sweep, 4 stages)
 
 Style: Nature/Science quality (300 DPI, 10pt font, tight layout)
 """
@@ -16,13 +17,12 @@ import json
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 import numpy as np
 
-from config import FIGURES_DIR, RESULTS_DIR, DATA_PROCESSED, P_BASE
-
+from config import DATA_PROCESSED, FIGURES_DIR, P_BASE, RESULTS_DIR
 
 # ─── Style ───────────────────────────────────────────────────────────────────
 plt.rcParams.update({
@@ -93,8 +93,13 @@ def fig_behavioral_heatmap(save_path: Path | None = None) -> bool:
             if cat in profile.get("category_profiles", {}):
                 matrix[i, j] = profile["category_profiles"][cat].get("refusal_rate", 0)
 
+    # Scale the colormap to the observed range (refusal rates are all low, so a
+    # fixed 0-1 scale would wash every cell to the same red). Round up to the
+    # next 0.05 with a 0.25 floor so the gradient shows model-to-model contrast.
+    vmax = max(0.25, float(np.ceil(matrix.max() / 0.05) * 0.05))
+
     fig, ax = plt.subplots(figsize=(10, max(3, len(models) * 0.6)))
-    im = ax.imshow(matrix, cmap="RdYlGn", vmin=0, vmax=1, aspect="auto")
+    im = ax.imshow(matrix, cmap="RdYlGn", vmin=0, vmax=vmax, aspect="auto")
 
     ax.set_xticks(range(len(categories)))
     ax.set_xticklabels([c.replace("_", "\n") for c in categories], rotation=45, ha="right")
@@ -102,14 +107,14 @@ def fig_behavioral_heatmap(save_path: Path | None = None) -> bool:
     ax.set_yticklabels(models)
     ax.set_title("Refusal Rate by Model and NSABB Category")
 
-    # Add text annotations
+    # Add text annotations (color chosen relative to the scaled colormap)
     for i in range(len(models)):
         for j in range(len(categories)):
-            color = "white" if matrix[i, j] < 0.5 else "black"
+            color = "white" if matrix[i, j] < 0.5 * vmax else "black"
             ax.text(j, i, f"{matrix[i, j]:.2f}", ha="center", va="center",
                     color=color, fontsize=8)
 
-    plt.colorbar(im, ax=ax, label="Refusal Rate", shrink=0.8)
+    plt.colorbar(im, ax=ax, label=f"Refusal Rate (scale 0-{vmax:.2f})", shrink=0.8)
     plt.tight_layout()
 
     path = save_path or FIGURES_DIR / "fig_a_behavioral_heatmap.png"
@@ -143,11 +148,11 @@ def fig_threat_level_gradient(save_path: Path | None = None) -> bool:
             dims_by_level = profile.get("dims_by_level", {})
 
             if dims_by_level:
-                vals = [dims_by_level.get(l, {}).get(dim, 0) for l in levels]
+                vals = [dims_by_level.get(lvl, {}).get(dim, 0) for lvl in levels]
             elif dim == "refusal_rate":
                 # Backward compat: use refusal_rate_by_level
                 by_level = profile.get("refusal_rate_by_level", {})
-                vals = [by_level.get(l, 0) for l in levels]
+                vals = [by_level.get(lvl, 0) for lvl in levels]
             else:
                 vals = [0] * len(levels)
 
@@ -268,7 +273,6 @@ def fig_risk_dashboard(save_path: Path | None = None) -> bool:
     if not data:
         return False
 
-    from collections import defaultdict
     scenarios = sorted({a["scenario_id"] for a in data})
     models = sorted({a["model_name"] for a in data})
 
@@ -282,7 +286,7 @@ def fig_risk_dashboard(save_path: Path | None = None) -> bool:
         matrix[i, j] = color_map.get(a["risk_color"], 0)
 
     fig, ax = plt.subplots(figsize=(10, max(3, len(models) * 0.6)))
-    im = ax.imshow(matrix, cmap=cmap, vmin=-0.5, vmax=2.5, aspect="auto")
+    ax.imshow(matrix, cmap=cmap, vmin=-0.5, vmax=2.5, aspect="auto")
 
     ax.set_xticks(range(len(scenarios)))
     ax.set_xticklabels([s.replace("_", "\n") for s in scenarios], rotation=45, ha="right")

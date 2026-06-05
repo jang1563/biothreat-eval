@@ -5,18 +5,22 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from behavior_analysis import build_profile
+from brief_generator import generate_detailed_brief, generate_public_brief
 from models import (
-    NSABBCategory, ThreatLevel, AICapability, RefusalType, RiskColor,
-    ProxyQuery, BehavioralScore, BehavioralProfile,
-    RiskAssessment, StageRisk, UpliftResult, PolicyRecommendation,
+    AICapability,
+    BehavioralScore,
+    NSABBCategory,
+    ProxyQuery,
+    RefusalType,
+    RiskColor,
+    ThreatLevel,
 )
+from policy_mapper import map_risk_to_policy
+from risk_model import assess_risk, compute_B
 from taxonomy import build_taxonomy, get_evaluable_cells
 from threat_scenarios import build_scenarios, verify_category_coverage
-from behavior_analysis import build_profile
-from risk_model import assess_risk, compute_B
 from uplift_calculator import compute_uplift
-from policy_mapper import map_risk_to_policy, cross_model_analysis
-from brief_generator import generate_public_brief, generate_detailed_brief
 
 
 def _make_queries(n=5) -> list[ProxyQuery]:

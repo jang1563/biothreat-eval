@@ -5,8 +5,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from behavior_analysis import _compute_robustness, build_profile
 from models import BehavioralScore, RefusalType
-from behavior_analysis import build_profile, _compute_robustness
 
 
 def _make_score(qid, refusal=0.5, completeness=0.5, specificity=0.5, safety=0.5,

@@ -1,10 +1,10 @@
 """Provider-agnostic LLM client for structured and raw output.
 
-Supports Gemini, Groq (OpenAI-compatible), and DeepSeek (OpenAI-compatible).
-Extended from autoquestion/llm_client.py with per-call provider dispatch.
+Supports Gemini, Groq (OpenAI-compatible), and DeepSeek (OpenAI-compatible),
+with per-call provider dispatch, schema adaptation for Gemini, and built-in
+rate limiting.
 """
 
-import json as json_mod
 import os
 import time
 from pathlib import Path
@@ -67,6 +67,7 @@ def create_client(provider: str):
         client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
     elif provider in ("groq", "deepseek"):
         from openai import OpenAI
+
         from config import PROVIDER_CONFIGS
         cfg = PROVIDER_CONFIGS[provider]
         client = OpenAI(

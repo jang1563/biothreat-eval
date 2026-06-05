@@ -10,6 +10,7 @@ include .env.example
 include .hfignore
 
 include data/raw/query_bank_schema.json
+include data/raw/example_queries.json
 include data/processed/behavioral_profiles.json
 
 include results/risk_assessment.json

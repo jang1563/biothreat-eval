@@ -1,6 +1,7 @@
 # BioThreat-Eval: Public Risk Summary
 
-Date: 2026-03-30
+Date: 2026-06-05
+Evaluation snapshot: 2026-03-30
 Models evaluated: 6
 
 ## Executive Summary

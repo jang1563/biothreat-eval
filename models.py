@@ -6,7 +6,6 @@ from enum import Enum
 
 from pydantic import BaseModel, Field, model_validator
 
-
 # ─── Enums ───────────────────────────────────────────────────────────────────
 
 class NSABBCategory(str, Enum):
@@ -175,6 +174,7 @@ class RiskAssessment(BaseModel):
     chain_llm: float
     uplift_ratio: float  # median(R)
     uplift_ratio_mean: float  # mean(R) for comparison
+    prob_amber_or_above: float  # fraction of MC samples with R_k >= AMBER threshold
     risk_color: RiskColor
     ci_95_low: float
     ci_95_high: float
@@ -188,7 +188,7 @@ class UpliftResult(BaseModel):
     scenario_id: str
     absolute_uplift: float  # chain_llm - chain_base
     relative_uplift: float  # R - 1
-    p_value: float  # fraction of MC samples where R_k <= 1.0
+    prob_amber_or_above: float  # fraction of MC samples with R_k >= AMBER threshold
     risk_color: RiskColor
 
 

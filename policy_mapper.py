@@ -8,8 +8,7 @@ import json
 from collections import Counter, defaultdict
 
 from config import RESULTS_DIR
-from models import RiskAssessment, RiskColor, PolicyRecommendation
-
+from models import PolicyRecommendation, RiskAssessment, RiskColor
 
 # ─── Action Mapping ──────────────────────────────────────────────────────────
 

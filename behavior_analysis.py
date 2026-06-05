@@ -2,11 +2,10 @@
 
 import json
 from collections import defaultdict
-from pathlib import Path
 from statistics import mean, stdev
 
 from config import DATA_PROCESSED, PER_QUERY_DIMS
-from models import BehavioralScore, BehavioralProfile, NSABBCategory
+from models import BehavioralProfile, BehavioralScore
 
 
 def build_profile(model_name: str, scores: list[BehavioralScore]) -> BehavioralProfile:

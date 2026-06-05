@@ -9,7 +9,7 @@ The file `data/raw/query_bank.json` is **NOT committed to the public repository*
 
 ## What IS Public
 
-- `data/raw/query_bank_schema.json`: Schema and Level 1-2 examples only
+- `data/raw/query_bank_schema.json`: Field schema and a single non-operational placeholder example only
 - All pipeline code (taxonomy, evaluation, risk model, policy mapping)
 - Aggregate results (behavioral profiles, risk assessments, policy briefs)
 - Formal model specification (`FORMAL_MODEL.md`)
@@ -45,4 +45,6 @@ It is NOT designed to:
 
 ## Contact
 
-For query bank access requests or responsible disclosure concerns, contact the project maintainer.
+For query bank access requests (with stated justification) or responsible
+disclosure concerns, email `jak4013@med.cornell.edu` with the subject
+`BIOTHREAT SAFETY`. See [`SECURITY.md`](SECURITY.md) for the full disclosure process.

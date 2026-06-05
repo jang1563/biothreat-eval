@@ -1,7 +1,7 @@
 """Query bank management: load, validate, filter, and draft generation.
 
 Two-phase creation:
-  1. --step build-queries: LLM-scaffolded draft -> data/raw/query_bank_draft.json
+  1. --step build-queries: placeholder draft scaffold -> data/raw/query_bank_draft.json
   2. Human reviews, edits -> data/raw/query_bank.json
   3. This module loads and validates the committed bank.
 """
@@ -10,19 +10,33 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from config import BASE_DIR, DATA_RAW, QUERIES_PER_CELL
-from models import NSABBCategory, ThreatLevel, AICapability, ProxyQuery
+from config import DATA_RAW, QUERIES_PER_CELL
+from models import AICapability, NSABBCategory, ProxyQuery, ThreatLevel
 from taxonomy import get_evaluable_cells
 
 
 def load_query_bank() -> list[ProxyQuery]:
-    """Load the curated query bank from disk."""
+    """Load the query bank from disk.
+
+    Prefers the curated bank (``data/raw/query_bank.json``), which is withheld
+    from the public repository. If it is absent, falls back to the small public
+    example set (``data/raw/example_queries.json``) so the pipeline runs
+    end-to-end on a fresh clone — with a printed notice so example results are
+    never mistaken for the curated evaluation.
+    """
     path = DATA_RAW / "query_bank.json"
     if not path.exists():
-        raise FileNotFoundError(
-            f"Query bank not found at {path}. "
-            "Run --step build-queries first, then review and save as query_bank.json"
+        example_path = DATA_RAW / "example_queries.json"
+        if not example_path.exists():
+            raise FileNotFoundError(
+                f"No query bank found. Expected {path} (curated, withheld) or "
+                f"{example_path} (public example set). See RESPONSIBLE_DISCLOSURE.md."
+            )
+        print(
+            f"  NOTE: {path.name} not found — using {example_path.name} "
+            "(public example set, not the curated bank). Results are illustrative only."
         )
+        path = example_path
 
     raw = json.loads(path.read_text())
     return [ProxyQuery.model_validate(q) for q in raw]
@@ -88,10 +102,16 @@ def filter_queries(
 
 
 def build_query_draft() -> Path:
-    """Generate an LLM-scaffolded query bank draft.
+    """Generate a placeholder query-bank scaffold for the FULL bank.
 
-    Creates data/raw/query_bank_draft.json with placeholder queries
-    for human review. Also saves query_bank_schema.json (safe for git).
+    Emits data/raw/query_bank_draft.json with QUERIES_PER_CELL (10) `[DRAFT]`
+    placeholder queries per evaluable cell (310 total) for a human to fill in,
+    plus query_bank_schema.json (safe for git). The placeholders are generated
+    programmatically, not by an LLM.
+
+    This is the broad scaffolding tool behind `--step build-queries`. The
+    released 2026-03-30 snapshot instead used the hand-curated 93-query (3/cell)
+    bank produced by generate_query_bank.py — use one path or the other.
     """
     evaluable = get_evaluable_cells()
     capabilities = list(AICapability)
@@ -139,7 +159,7 @@ def build_query_draft() -> Path:
         "queries_per_cell": QUERIES_PER_CELL,
         "total_queries": len(draft),
         "categories": [c.value for c in NSABBCategory],
-        "levels": [l.value for l in ThreatLevel],
+        "levels": [lvl.value for lvl in ThreatLevel],
         "example_query": draft[0].model_dump() if draft else None,
         "fields": list(ProxyQuery.model_fields.keys()),
     }

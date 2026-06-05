@@ -1,4 +1,4 @@
-# Hugging Face Release Checklist
+# Hugging Face Publishing Guide
 
 This repository publishes only aggregate, public-safe evaluation artifacts to
 Hugging Face. The generated `hf_data/` directory is the upload source.
@@ -45,10 +45,13 @@ Do not upload:
 From the repository root:
 
 ```bash
-huggingface-cli upload jang1563/biothreat-eval hf_data . \
+hf upload jang1563/biothreat-eval hf_data . \
   --repo-type dataset \
   --commit-message "Refresh aggregate BioThreat-Eval dataset"
 ```
+
+(On older `huggingface_hub` releases the equivalent command is
+`huggingface-cli upload` with the same arguments.)
 
 The dataset card defines separate Viewer configs for behavioral profiles, risk
 assessment, uplift results, and policy recommendations.

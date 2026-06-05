@@ -9,7 +9,6 @@ except ModuleNotFoundError:  # Python 3.10
 
 from scripts import convert_to_hf
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 

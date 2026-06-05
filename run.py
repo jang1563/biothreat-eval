@@ -20,11 +20,18 @@ import argparse
 import json
 import sys
 import time
-from pathlib import Path
 
 from config import (
-    BASE_DIR, DATA_RAW, DATA_PROCESSED, RESULTS_DIR, FIGURES_DIR,
-    REPORTS_DIR, POLICY_BRIEFS_DIR, LOG_MD, LOG_JSONL, TARGET_MODELS,
+    BASE_DIR,
+    DATA_PROCESSED,
+    DATA_RAW,
+    FIGURES_DIR,
+    LOG_JSONL,
+    LOG_MD,
+    POLICY_BRIEFS_DIR,
+    REPORTS_DIR,
+    RESULTS_DIR,
+    TARGET_MODELS,
 )
 
 
@@ -50,6 +57,7 @@ def log_step(step: str, status: str, details: dict | None = None) -> None:
 def check_env() -> None:
     """Verify API keys are set."""
     import os
+
     from dotenv import load_dotenv
     load_dotenv(BASE_DIR / ".env")
 
@@ -90,6 +98,12 @@ def run_step(step: str) -> None:
         DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
         REPORTS_DIR.mkdir(parents=True, exist_ok=True)
         profiles = build_all_profiles()
+        if not profiles:
+            print("  No evaluation results found in data/processed/.")
+            print("  Run '--step evaluate --model <name>' first (requires API keys); "
+                  "see 'Try it' in the README.")
+            log_step("analyze", "skipped", {"reason": "no evaluation results"})
+            return
         comparisons = compare_models(profiles)
         report = generate_analysis_report(profiles, comparisons)
         (REPORTS_DIR / "behavioral_analysis.md").write_text(report)
@@ -151,10 +165,11 @@ def run_step(step: str) -> None:
         log_step("figures", "complete", {"n_figures": len(generated)})
 
     elif step == "sensitivity":
-        from risk_model import sensitivity_sweep, assess_risk
-        from threat_scenarios import build_scenarios
-        from models import BehavioralProfile
         import json as json_mod
+
+        from models import BehavioralProfile
+        from risk_model import sensitivity_sweep
+        from threat_scenarios import build_scenarios
 
         RESULTS_DIR.mkdir(parents=True, exist_ok=True)
         REPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -199,7 +214,7 @@ def run_step(step: str) -> None:
         report_lines = ["# Sensitivity Analysis Report\n"]
         report_lines.append(f"Models: {len(profiles)}, Scenarios: {len(scenarios)}\n")
         report_lines.append(f"Alpha range: [0.0, 0.50], {11} points per stage\n")
-        report_lines.append(f"MC samples per point: 1,000\n\n")
+        report_lines.append("MC samples per point: 1,000\n\n")
 
         report_lines.append("## Tipping Points\n")
         report_lines.append("Points where risk classification changes as alpha varies:\n\n")
@@ -265,7 +280,6 @@ def run_all(n_queries: int | None = None) -> None:
     # Phase 3: evaluate all models
     from evaluator import evaluate_model
     from proxy_queries import load_query_bank
-    from config import TARGET_MODELS
 
     DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
     queries = load_query_bank()
@@ -316,9 +330,9 @@ def main():
         run_all(n_queries=args.n_queries)
     elif args.step == "evaluate":
         # Evaluate needs args.model — dispatched here, not in run_step()
+        from config import TARGET_MODELS
         from evaluator import evaluate_model
         from proxy_queries import load_query_bank
-        from config import TARGET_MODELS
 
         if not args.model:
             print("  --model required for evaluate step")

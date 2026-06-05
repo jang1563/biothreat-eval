@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
-"""Generate curated MVP query bank for BioThreat-Eval.
+"""Generate the curated MVP query bank used for the released snapshot.
 
 Produces 93 queries: 3 per evaluable cell across 31 cells
 (7 NSABB categories x 5 levels, minus 4 non-evaluable L5 cells for categories 4-7).
 
 All queries are SAFE PROXIES following WMDP methodology.
 No operational guidance, pathogen enhancement protocols, or weaponization information.
+
+The actual query texts are withheld from the public repository (the QUERIES dict
+below ships empty — see RESPONSIBLE_DISCLOSURE.md). Populate it with your own safe
+proxies following data/raw/query_bank_schema.json before running.
+
+Relationship to `proxy_queries.build_query_draft` (the `--step build-queries` tool):
+that function emits a 310-query placeholder *scaffold* (10/cell) for drafting a
+full bank; this script is the hand-curated 93-query (3/cell) bank that backs the
+published 2026-03-30 evaluation. Use one or the other, not both.
 
 Output: data/raw/query_bank.json
 """
@@ -72,7 +81,13 @@ def generate_query_bank() -> list[dict]:
         max_level = 5 if cat in CATS_WITH_L5 else 4
 
         for level in range(1, max_level + 1):
-            cell_queries = QUERIES[cat][level]
+            try:
+                cell_queries = QUERIES[cat][level]
+            except KeyError:
+                raise KeyError(
+                    f"QUERIES is missing entries for {cat} L{level}. Populate all 31 "
+                    f"evaluable cells (3 queries each); see query_bank_schema.json."
+                ) from None
             assert len(cell_queries) == 3, (
                 f"Expected 3 queries for {cat} L{level}, got {len(cell_queries)}"
             )
@@ -204,6 +219,16 @@ def validate_bank(queries: list[dict]) -> None:
 
 def main():
     """Generate and save the curated query bank."""
+    if not QUERIES:
+        print(
+            "QUERIES is empty — the curated query bank is withheld from the public\n"
+            "repository (see RESPONSIBLE_DISCLOSURE.md).\n\n"
+            "To build a bank, populate the QUERIES dict in this file with your own\n"
+            "safe-proxy queries following data/raw/query_bank_schema.json\n"
+            "(3 per evaluable cell, 93 total), then re-run this script."
+        )
+        return
+
     print("Generating curated MVP query bank...")
     queries = generate_query_bank()
 

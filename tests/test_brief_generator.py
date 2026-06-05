@@ -5,8 +5,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from models import RiskAssessment, RiskColor, StageRisk, PolicyRecommendation
-from brief_generator import generate_public_brief, generate_detailed_brief
+from brief_generator import generate_detailed_brief, generate_public_brief
+from models import PolicyRecommendation, RiskAssessment, RiskColor, StageRisk
 
 
 def _make_assessment(model, scenario, color):
@@ -23,6 +23,7 @@ def _make_assessment(model, scenario, color):
         chain_llm=0.02,
         uplift_ratio=2.5,
         uplift_ratio_mean=2.8,
+        prob_amber_or_above=0.6,
         risk_color=color,
         ci_95_low=1.0,
         ci_95_high=5.0,
@@ -57,6 +58,10 @@ def test_detailed_brief_has_tables():
     assert "Per-Model Assessment" in brief
     assert "Policy Recommendations" in brief
     assert "model_a" in brief
+    # Numbers must actually render, not just section headings
+    assert "2.50" in brief          # uplift_ratio formatted {:.2f}
+    assert "0.7000" in brief        # research stage p_llm formatted {:.4f}
+    assert "AMBER" in brief
 
 
 def test_detailed_brief_marked_restricted():
